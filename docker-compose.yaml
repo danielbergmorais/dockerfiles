@@ -1,0 +1,100 @@
+services:
+
+# WEB SERVER
+  nginx:
+    build:
+      context: .
+      dockerfile: nginx/Dockerfile
+    ports: 
+      - "8080:80"
+    networks:
+      - internal
+    volumes:
+      - ./application/:/var/www/html/
+      - ./logs/nginx:/var/log/nginx/
+    container_name: nginx
+  
+# PHP FILE CONFIG
+  php:
+    build:
+      context: .
+      dockerfile: php/Dockerfile
+
+    volumes:
+      - ./application/:/var/www/html/
+      - ./logs/php.log:/var/log/fpm-php.www.log
+    container_name: php
+    expose:
+      - "9000"
+    networks:
+      - internal
+	  
+# MYSQL DATABASE  
+  mysql:
+    container_name: db
+    restart: always
+    image: mysql:latest
+    platform: linux/x86_64
+    command: --init-file /db/application/init-mysql.sql
+    ports:
+     - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mysqldb
+      MYSQL_USER: mysqluser
+      MYSQL_PASS: mysqlpassword
+    volumes:
+      - ./data:/var/lib/mysql
+      - ./db/init.sql:/db/application/init.sql
+    networks:
+      - internal
+	  
+# POSTGRES DATABASE
+  postgres:
+    build:
+      context: .
+      dockerfile: ./db/Dockerfile
+    container_name: postgres
+    platform: linux/x86_64
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pgpassword
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data/pg:/var/lib/postgresql/data  
+    networks:
+      - internal
+	  
+	  
+# SGDB ADMINER
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8181:8080   
+    networks:
+      - internal
+	  
+# SGDB POSTGRES  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: user@email.com
+      PGADMIN_DEFAULT_PASSWORD: pgapassword
+    ports:
+      - 8080:80
+    volumes:
+      - ./data/pgadmin:/var/lib/pgadmin
+    networks:
+      - internal
+	  
+# INTERNAL NETWORK   
+networks:
+  internal:
+    driver: bridge
