@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libwebp-dev \
     libfreetype6-dev \
+    libjpeg62-turbo-dev \
     libzip-dev \
     zip \
     unzip\
@@ -24,7 +25,8 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install intl \ 
     && docker-php-ext-install mbstring \
     && docker-php-ext-install zip \
-    && docker-php-ext-configure zip 
+    && docker-php-ext-configure zip \
+    && docker-php-ext-install -j$(nproc) gd
     
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
