@@ -13,7 +13,6 @@ services:
       - ./application/:/var/www/html/
       - ./logs/nginx:/var/log/nginx/
     container_name: nginx
-  
 # PHP FILE CONFIG
   php:
     build:
@@ -28,7 +27,7 @@ services:
       - "9000"
     networks:
       - internal
-	  
+
 # MYSQL DATABASE  
   mysql:
     container_name: db
@@ -48,7 +47,7 @@ services:
       - ./db/init-mysql.sql:/db/application/init-mysql.sql
     networks:
       - internal
-	  
+
 # POSTGRES DATABASE
   postgres:
     build:
@@ -66,8 +65,7 @@ services:
       - ./data/pg:/var/lib/postgresql/data  
     networks:
       - internal
-	  
-	  
+
 # SGDB ADMINER
   adminer:
     image: adminer
@@ -76,7 +74,7 @@ services:
       - 8181:8080   
     networks:
       - internal
-	  
+
 # SGDB POSTGRES  
   pgadmin:
     image: dpage/pgadmin4
@@ -93,7 +91,7 @@ services:
       - ./data/pgadmin:/var/lib/pgadmin
     networks:
       - internal
-	  
+
 # INTERNAL NETWORK   
 networks:
   internal:
